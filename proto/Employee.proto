@@ -1,0 +1,23 @@
+syntax="proto3";
+
+package proto;
+
+
+option  go_package="./;grpc";
+
+message Employee{
+   string username=1;
+   string password=2;
+}
+
+message ReadEmployeeRequest{
+    Employee employee=1;
+
+}
+message ReadEmployeeResponse{
+    string status=1;
+}
+
+service EmployeeService{
+    rpc GetEmployee (ReadEmployeeRequest) returns (ReadEmployeeResponse);
+}
