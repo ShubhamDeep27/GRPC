@@ -7,7 +7,10 @@ import (
 	"net"
 	"os"
 
+	"grpc/common"
 	pb "grpc/proto"
+
+	"grpc/interceptors"
 
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -17,6 +20,7 @@ import (
 
 func init() {
 	DatabaseConnection()
+	common.InitApiLogger()
 }
 
 var (
@@ -101,7 +105,7 @@ func main() {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.UnaryInterceptor(interceptors.LoggerInterceptor))
 	pb.RegisterEmployeeServiceServer(s, &server{})
 
 	log.Printf("Server listening at %v", lis.Addr())
