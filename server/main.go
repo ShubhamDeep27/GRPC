@@ -5,7 +5,7 @@ import (
 	"net"
 
 	"grpc/common"
-	grpcroutes "grpc/grpc-routes.go"
+	grpcroutes "grpc/grpcroutes"
 	"grpc/interceptors"
 	pb "grpc/proto"
 
