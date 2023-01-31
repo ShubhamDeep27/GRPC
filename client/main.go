@@ -1,15 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	pb "grpc/proto"
 
-	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"log"
-	"net/http"
 )
 
 var (
@@ -22,37 +21,25 @@ type Employee struct {
 }
 
 func main() {
-	flag.Parse()
 	conn, err := grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to dial: %v", err)
 	}
 
 	defer conn.Close()
 
+	data := &pb.Employee{
+		Username: "shubham",
+		Password: "123",
+	}
+
 	client := pb.NewEmployeeServiceClient(conn)
 
-	r := gin.Default()
-	r.GET("/Employee/:username/:password", func(c *gin.Context) {
-		username := c.Param("username")
-		password := c.Param("password")
-		log.Print(username, password)
-		data := &pb.Employee{
-			Username: username,
-			Password: password,
-		}
-		res, err := client.GetEmployee(c, &pb.ReadEmployeeRequest{Employee: data})
-		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{
-				"message": err.Error(),
-			})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"status": res,
-		})
-	})
+	res, err := client.GetEmployee(context.Background(), &pb.ReadEmployeeRequest{Employee: data})
+	if err != nil {
+		log.Fatalf("Failed to call GetEmployee: %v", err)
+	}
+	log.Printf("Response: %v", res)
 
-	r.Run()
 }
