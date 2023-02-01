@@ -5,6 +5,8 @@ import (
 	"grpc/common"
 	"grpc/models"
 	pb "grpc/proto"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type EmployeeServiceImpl struct {
@@ -20,11 +22,13 @@ func (*EmployeeServiceImpl) GetEmployee(ctx context.Context, req *pb.ReadEmploye
 
 	username := req.Employee.GetUsername()
 	password := req.Employee.GetPassword()
+	var storedpassword string
 
 	var employee models.Employee
-	res := common.DB.Find(&employee, "username = ? AND password = ? ", username, password)
+	res := common.DB.Select("password").Find(&employee, "username = ?", username)
 
-	if res.RowsAffected == 0 {
+	res.Scan(&storedpassword)
+	if err := bcrypt.CompareHashAndPassword([]byte(storedpassword), []byte(password)); err != nil {
 		return &pb.ReadEmployeeResponse{
 			Status: "Login Faliure",
 		}, nil
