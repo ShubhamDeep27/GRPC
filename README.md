@@ -42,3 +42,4 @@ API Server technology stack is
 * GRPC (Server and Client Side)
 * Database: MySQL
 * ORM: gorm 
+* Zap for Logging
